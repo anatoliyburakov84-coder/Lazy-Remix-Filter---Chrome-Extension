@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1280, height=800" />
+  <title>Store screenshot — YouTube home (test mode)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background: #0f0f0f;
+      font-family: "Roboto", system-ui, sans-serif;
+      color: #f1f1f1;
+    }
+    .page { width: 1280px; height: 800px; padding: 40px 48px; position: relative; }
+    h2 { font-size: 18px; font-weight: 600; margin: 0 0 20px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 16px;
+      max-width: 1100px;
+    }
+    .card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #181818;
+    }
+    .card.flag {
+      outline: 3px solid rgba(220, 60, 120, 0.95);
+      outline-offset: 0;
+      background: rgba(240, 70, 110, 0.08);
+      box-shadow: inset 0 0 0 2px rgba(255, 200, 120, 0.2);
+      position: relative;
+    }
+    .thumb-wrap {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(145deg, #2a2a2a, #121212);
+    }
+    .card.flag .thumb-wrap::after {
+      content: "Would block";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font: 600 11px/1.2 system-ui, sans-serif;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(200, 40, 85, 0.96);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.45);
+      z-index: 2;
+    }
+    .body { padding: 12px 4px 8px 0; }
+    .title {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.35;
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .sub { font-size: 13px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <h2>Recommended</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="thumb-wrap"></div>
+        <div class="body">
+          <div class="title">Mix – Hip-hop</div>
+          <div class="sub">Viper, Waka Flocka Flame, Feng, and more</div>
+        </div>
+      </div>
+      <div class="card flag">
+        <div class="thumb-wrap"></div>
+        <div class="body">
+          <div class="title">Mix – LUCIFER'S LAMENT x Jesus quotes x up up to God (slowed + bass boosted)</div>
+          <div class="sub">YOUTHISENDING, Viliam Lane, Antent, and more</div>
+        </div>
+      </div>
+      <div class="card flag">
+        <div class="thumb-wrap"></div>
+        <div class="body">
+          <div class="title">Tank Triad 2 (Slowed)</div>
+          <div class="sub">HELLBLADE - Topic · 256K views · 1 month ago</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="thumb-wrap"></div>
+        <div class="body">
+          <div class="title">random violinist goes crazy improvising @matildeheckler</div>
+          <div class="sub">ARIatHOME · 10M views · 5 months ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

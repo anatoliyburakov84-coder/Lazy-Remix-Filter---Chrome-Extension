@@ -1,0 +1,260 @@
+:root {
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: #e8e8ef;
+  background: #0f0f16;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.page-header {
+  margin-bottom: 1.75rem;
+}
+
+.page-header h1 {
+  font-size: 1.65rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+  color: #f4f4fb;
+}
+
+.lede {
+  margin: 0;
+  color: #9a9ab0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.main-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.card {
+  background: #16161f;
+  border: 1px solid #2a2a38;
+  border-radius: 12px;
+  padding: 1.15rem 1.25rem 1.25rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.card-muted {
+  background: #13131a;
+}
+
+.card-title {
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a8a8c8;
+  margin: 0 0 0.35rem;
+}
+
+.card-intro {
+  margin: 0 0 0.85rem;
+  font-size: 0.9rem;
+  color: #8c8c9e;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  cursor: pointer;
+  margin-bottom: 0.65rem;
+}
+
+.row:last-of-type {
+  margin-bottom: 0;
+}
+
+.row input {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.row span {
+  font-size: 0.95rem;
+  color: #e4e4f0;
+}
+
+.field {
+  margin-bottom: 0.85rem;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.field label:first-child,
+.field > label[for] {
+  font-weight: 600;
+  font-size: 0.92rem;
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #d8d8e8;
+}
+
+.field-hint {
+  font-size: 0.82rem;
+  color: #7a7a90;
+  margin: 0.4rem 0 0;
+  line-height: 1.45;
+}
+
+textarea,
+select {
+  width: 100%;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.86rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #323244;
+  background: #1a1a24;
+  color: #e8e8ef;
+}
+
+textarea:focus,
+select:focus {
+  outline: 2px solid #6a6a9e;
+  border-color: #5a5a8a;
+}
+
+.pattern-actions {
+  margin-top: 0.6rem;
+}
+
+.help-details {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: #12121a;
+  border-radius: 8px;
+  border: 1px solid #282832;
+  font-size: 0.86rem;
+  color: #9a9ab0;
+}
+
+.help-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #b8b8d0;
+}
+
+.help-details p {
+  margin: 0.5rem 0 0;
+}
+
+.help-details code {
+  font-size: 0.85em;
+  background: #1e1e2a;
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+}
+
+.actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.25rem 0;
+}
+
+.btn {
+  font: inherit;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #5a5a9e 0%, #454578 100%);
+  border-color: #6a6ab0;
+  color: #fafaff;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #6565a8 0%, #4f4f82 100%);
+}
+
+.btn-secondary {
+  background: #252532;
+  border-color: #3a3a4e;
+  color: #e4e4f0;
+}
+
+.btn-secondary:hover {
+  background: #2e2e3e;
+  border-color: #4a4a60;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #8a8ac8;
+  outline-offset: 2px;
+}
+
+.status {
+  font-size: 0.9rem;
+  color: #7ad67a;
+  min-height: 1.2em;
+}
+
+.import-export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+details.limitations {
+  margin-top: 0.5rem;
+  padding: 1rem 1.1rem;
+  background: #12121a;
+  border-radius: 10px;
+  border: 1px solid #2a2a38;
+}
+
+details.limitations summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #c8c8dc;
+}
+
+details.limitations ul {
+  margin: 0.65rem 0 0;
+  padding-left: 1.2rem;
+  color: #9898ac;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+details.limitations li {
+  margin-bottom: 0.45rem;
+}
+
+details.limitations li:last-child {
+  margin-bottom: 0;
+}
+
+details.limitations code {
+  font-size: 0.88em;
+  background: #1e1e2a;
+  padding: 0.08em 0.3em;
+  border-radius: 3px;
+}

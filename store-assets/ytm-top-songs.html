@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1280, height=800" />
+  <title>Store screenshot — YouTube Music (test mode)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background: #030303;
+      font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: #f1f1f1;
+    }
+    .wrap {
+      padding: 48px 56px 40px;
+      max-width: 920px;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 20px;
+      letter-spacing: -0.02em;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      min-height: 64px;
+      background: rgba(255,255,255,0.03);
+    }
+    .row.normal { background: rgba(255,255,255,0.03); }
+    .row.flag {
+      position: relative;
+      outline: 3px solid rgba(220, 60, 120, 0.95);
+      outline-offset: 1px;
+      background: rgba(240, 70, 110, 0.12);
+      box-shadow: inset 0 0 0 2px rgba(255, 200, 120, 0.25);
+    }
+    .thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #3d3d3d, #1a1a1a);
+      flex-shrink: 0;
+    }
+    .meta { flex: 1; min-width: 0; }
+    .title { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: #fff; }
+    .sub { font-size: 13px; color: #aaa; line-height: 1.35; }
+    .badge {
+      flex-shrink: 0;
+      font: 600 11px/1.2 system-ui, sans-serif;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(200, 40, 85, 0.96);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    }
+    .footer {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #3ea6ff;
+      font-weight: 500;
+    }
+    .page { position: relative; width: 1280px; height: 800px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="wrap">
+      <h2>Top songs</h2>
+      <div class="row flag">
+        <div class="thumb"></div>
+        <div class="meta">
+          <div class="title">DYSTOPIA (ULTRA SLOWED)</div>
+          <div class="sub">DudePlaya &amp; N!GHTvisiøn · 24M plays · Album · DYSTOPIA</div>
+        </div>
+        <span class="badge">Would block</span>
+      </div>
+      <div class="row flag">
+        <div class="thumb"></div>
+        <div class="meta">
+          <div class="title">DYSTOPIA (SLOWED)</div>
+          <div class="sub">DudePlaya &amp; N!GHTvisiøn · 12M plays · Album · DYSTOPIA</div>
+        </div>
+        <span class="badge">Would block</span>
+      </div>
+      <div class="row normal">
+        <div class="thumb"></div>
+        <div class="meta">
+          <div class="title">DYSTOPIA</div>
+          <div class="sub">DudePlaya &amp; N!GHTvisiøn · 3.7M plays · Album · DYSTOPIA</div>
+        </div>
+      </div>
+      <div class="row flag">
+        <div class="thumb"></div>
+        <div class="meta">
+          <div class="title">ferocity (slowed)</div>
+          <div class="sub">DudePlaya · 679K plays · Album · ferocity</div>
+        </div>
+        <span class="badge">Would block</span>
+      </div>
+      <div class="row flag">
+        <div class="thumb"></div>
+        <div class="meta">
+          <div class="title">DEAD END (slowed)</div>
+          <div class="sub">DudePlaya · 5M plays · Album · DEAD END</div>
+        </div>
+        <span class="badge">Would block</span>
+      </div>
+      <div class="footer">Show all</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lazy Remix Filter</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>Lazy Remix Filter</h1>
+      <p class="lede">
+        Filter YouTube and YouTube Music rows by title (and optionally channel text). Everything runs locally in your
+        browser—nothing is sent to a server.
+      </p>
+    </header>
+
+    <main class="main-stack">
+      <section class="card" aria-labelledby="h-filtering">
+        <h2 id="h-filtering" class="card-title">Filtering</h2>
+        <p class="card-intro">Choose how rows that match your patterns are treated.</p>
+
+        <label class="row">
+          <input type="checkbox" id="enabled" />
+          <span>Enable filtering on YouTube and YouTube Music</span>
+        </label>
+
+        <div class="field">
+          <label for="mode">When a row matches</label>
+          <select id="mode">
+            <option value="hide">Hide completely</option>
+            <option value="test">Test — highlight rows that would be blocked</option>
+          </select>
+        </div>
+
+        <label class="row">
+          <input type="checkbox" id="matchChannel" />
+          <span>Also match channel / subtitle text</span>
+        </label>
+        <p class="field-hint">Can catch more remixes; may occasionally match channels you did not intend.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-counter">
+        <h2 id="h-counter" class="card-title">Counter</h2>
+        <label class="row">
+          <input type="checkbox" id="showFloatingCounter" />
+          <span>Show on-page count (bottom-right). The toolbar icon also shows the count for this tab.</span>
+        </label>
+        <p class="field-hint">
+          You can dismiss the chip with the × on the page. Turn this option off and on in settings to show it again
+          without reloading.
+        </p>
+      </section>
+
+      <section class="card" aria-labelledby="h-block">
+        <h2 id="h-block" class="card-title">Block list</h2>
+        <p class="card-intro">One phrase per line. Matching is case-insensitive unless you use regex (see below).</p>
+        <textarea id="blockPatterns" rows="14" spellcheck="false" aria-describedby="block-help"></textarea>
+        <div class="pattern-actions">
+          <button type="button" class="btn btn-secondary" id="resetBlockDefaults">Reset to default keywords</button>
+        </div>
+        <details class="help-details" id="block-help">
+          <summary>Advanced: regex and patterns</summary>
+          <p>
+            Lines starting with <code>regex:</code> use a JavaScript regex (e.g.
+            <code>regex:slowed\s*\+\s*reverb</code>). You can also use <code>/pattern/flags</code>.
+          </p>
+        </details>
+      </section>
+
+      <section class="card" aria-labelledby="h-allow">
+        <h2 id="h-allow" class="card-title">Allow list</h2>
+        <p class="card-intro">If any line matches the title or channel (when enabled), the row is never hidden.</p>
+        <textarea id="allowPatterns" rows="6" spellcheck="false"></textarea>
+      </section>
+
+      <div class="actions-bar">
+        <button type="button" class="btn btn-primary" id="save">Save settings</button>
+        <span id="status" class="status" aria-live="polite"></span>
+      </div>
+
+      <section class="card card-muted" aria-labelledby="h-backup">
+        <h2 id="h-backup" class="card-title">Backup</h2>
+        <p class="card-intro">Export or import your settings as JSON.</p>
+        <div class="import-export">
+          <button type="button" class="btn btn-secondary" id="exportBtn">Export JSON</button>
+          <button type="button" class="btn btn-secondary" id="importBtn">Import JSON</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden />
+        </div>
+      </section>
+
+      <details class="limitations">
+        <summary>Known limitations</summary>
+        <ul>
+          <li>
+            Works on youtube.com (including www, apex, and m.), and music.youtube.com. It does not run on YouTube
+            Studio, embedded players in iframes on other sites, or other YouTube subdomains unless added to the
+            extension.
+          </li>
+          <li>
+            Rows inside <strong>closed</strong> shadow DOM cannot be seen by the script; some UI experiments may be
+            missed until selectors are updated.
+          </li>
+          <li>Detection is keyword-based; some remix titles slip through, and rare false positives can occur.</li>
+          <li>YouTube may change its page structure; if filtering stops after an update, the extension may need fixes.</li>
+          <li>Filtering applies to visible lists and grids, not to audio already playing in the background only.</li>
+          <li>
+            Built with standard Manifest V3 <code>chrome.*</code> APIs for compatibility with Chrome, Edge, Brave,
+            Opera, Vivaldi, Arc, and other Chromium-based browsers.
+          </li>
+        </ul>
+      </details>
+    </main>
+
+    <script src="../lib/filter.js"></script>
+    <script src="options.js"></script>
+  </body>
+</html>

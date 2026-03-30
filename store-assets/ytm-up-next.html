@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1280, height=800" />
+  <title>Store screenshot — Up next (test mode)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      background: #030303;
+      font-family: "Roboto", system-ui, sans-serif;
+      color: #f1f1f1;
+    }
+    .page { width: 1280px; height: 800px; padding: 36px 48px; position: relative; }
+    .tabs {
+      display: flex;
+      gap: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+    }
+    .tab { font-size: 14px; font-weight: 500; color: #aaa; }
+    .tab.on { color: #fff; border-bottom: 3px solid #fff; padding-bottom: 10px; margin-bottom: -14px; }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      border-radius: 8px;
+      min-height: 56px;
+    }
+    .row.dim { opacity: 0.95; }
+    .row.flag {
+      position: relative;
+      outline: 3px solid rgba(220, 60, 120, 0.95);
+      outline-offset: 1px;
+      background: rgba(240, 70, 110, 0.12);
+      box-shadow: inset 0 0 0 2px rgba(255, 200, 120, 0.25);
+    }
+    .thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #444, #222);
+      flex-shrink: 0;
+    }
+    .meta { flex: 1; min-width: 0; }
+    .title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 2px; }
+    .sub { font-size: 12px; color: #aaa; }
+    .dur { font-size: 13px; color: #aaa; flex-shrink: 0; width: 40px; text-align: right; }
+    .badge {
+      flex-shrink: 0;
+      font: 600 11px/1.2 system-ui, sans-serif;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(200, 40, 85, 0.96);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="tabs">
+      <span class="tab on">UP NEXT</span>
+      <span class="tab">LYRICS</span>
+      <span class="tab">RELATED</span>
+    </div>
+    <div class="row dim">
+      <div class="thumb"></div>
+      <div class="meta">
+        <div class="title">Fnaf Nostalgia</div>
+        <div class="sub">Artist</div>
+      </div>
+      <span class="dur">3:12</span>
+    </div>
+    <div class="row dim">
+      <div class="thumb"></div>
+      <div class="meta">
+        <div class="title">Aphrosyne - Ocean</div>
+        <div class="sub">sqwenday</div>
+      </div>
+      <span class="dur">4:05</span>
+    </div>
+    <div class="row dim">
+      <div class="thumb"></div>
+      <div class="meta">
+        <div class="title">Cult of the Lamb [Official] - Light House</div>
+        <div class="sub">River Boy</div>
+      </div>
+      <span class="dur">2:44</span>
+    </div>
+    <div class="row dim">
+      <div class="thumb"></div>
+      <div class="meta">
+        <div class="title">Evening walk ambience</div>
+        <div class="sub">Chillhop</div>
+      </div>
+      <span class="dur">5:01</span>
+    </div>
+    <div class="row flag">
+      <div class="thumb"></div>
+      <div class="meta">
+        <div class="title">3am walk - daniel.mp3 [slowed] [reverb]</div>
+        <div class="sub">tiredminds</div>
+      </div>
+      <span class="badge">Would block</span>
+      <span class="dur">4:22</span>
+    </div>
+  </div>
+</body>
+</html>
