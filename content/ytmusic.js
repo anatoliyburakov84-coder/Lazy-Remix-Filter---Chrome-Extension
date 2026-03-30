@@ -185,6 +185,58 @@
   }
 
   /**
+   * Do not add hide/test classes inside the live playback UI — doing so can blank the player (Brave / strict privacy).
+   */
+  function isInsidePlaybackSurface(row) {
+    if (!row || !row.closest) return false;
+    return !!(
+      row.closest("ytmusic-player-bar") ||
+      row.closest("ytmusic-player") ||
+      row.closest("ytmusic-video") ||
+      row.closest("ytmusic-player-queue") ||
+      row.closest("ytmusic-playlist-queue") ||
+      row.closest("ytmusic-mini-player")
+    );
+  }
+
+  /**
+   * Never hide a row that contains a video element (main player or inline preview). display:none on an ancestor
+   * blacks out playback — this can happen when closest() does not match our playback selectors (A/B DOM).
+   */
+  function rowContainsVideoElement(row) {
+    if (!row) return false;
+    try {
+      if (row.querySelector("video")) return true;
+      return !!dq(row, "video");
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function injectPlaybackSafetyStyles() {
+    if (document.getElementById("lazy-remix-filter-ytm-playback-safety")) return;
+    var s = document.createElement("style");
+    s.id = "lazy-remix-filter-ytm-playback-safety";
+    s.textContent =
+      "ytmusic-app video,ytmusic-player video,ytmusic-video video{opacity:1!important;visibility:visible!important;}";
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  function clearFilterClassesFromPlaybackChrome() {
+    try {
+      var roots = document.querySelectorAll(
+        "ytmusic-player-bar, ytmusic-player, ytmusic-video, ytmusic-player-queue, ytmusic-playlist-queue, ytmusic-mini-player"
+      );
+      var k;
+      for (k = 0; k < roots.length; k++) {
+        dqAll(roots[k], ".lazy-remix-filter-hidden, .lazy-remix-filter-test, .lazy-remix-filter-dim").forEach(function (el) {
+          el.classList.remove("lazy-remix-filter-hidden", "lazy-remix-filter-test", "lazy-remix-filter-dim");
+        });
+      }
+    } catch (e) {}
+  }
+
+  /**
    * One shadow-aware walk (Up Next / player UI lives in shadow roots — avoid N full-tree passes).
    */
   function collectRows() {
@@ -239,44 +291,277 @@
   var skipBurstTs = [];
   var lastSkipClickAt = 0;
   var MAX_SKIPS_PER_10S = 25;
-  var MIN_MS_BETWEEN_SKIPS = 250;
+  var MIN_MS_BETWEEN_SKIPS = 500;
 
-  function performSkip() {
+  /**
+   * Title/channel for the *currently playing* track only — not queue previews or other chrome in the bar.
+   */
+  function getNowPlayingFromPlayerBar() {
     var bar = document.querySelector("ytmusic-player-bar");
-    if (!bar) return;
-    var buttons = C.querySelectorAllDeep(bar, "tp-yt-paper-icon-button, paper-icon-button, button");
-    var i;
-    for (i = 0; i < buttons.length; i++) {
-      var b = buttons[i];
-      var al = (b.getAttribute && b.getAttribute("aria-label")) || "";
-      var tl = (b.getAttribute && b.getAttribute("title")) || "";
-      var combined = (al + " " + tl).trim();
-      if (!combined) continue;
-      var lower = combined.toLowerCase();
-      if (lower.indexOf("previous") !== -1 || /\bprev\b/.test(lower)) continue;
-      if (lower.indexOf("skip ad") !== -1) continue;
-      if (
-        lower.indexOf("next") !== -1 ||
-        lower.indexOf("forward") !== -1 ||
-        lower.indexOf("skip") !== -1
-      ) {
-        try {
-          b.click();
-        } catch (e) {}
-        return;
+    if (!bar) return { title: "", channel: "", videoId: "" };
+    var mid =
+      dq(bar, ".middle-content") ||
+      dq(bar, "#middle-content") ||
+      dq(bar, ".middle-controls") ||
+      dq(bar, "#middle-controls");
+    var root = mid || bar;
+    var title = "";
+    var channel = "";
+    var videoId = "";
+    var watchLink =
+      dq(root, "a[href*=\"/watch\"]") || dq(root, "a.yt-simple-endpoint[href*=\"/watch\"]");
+    if (watchLink) {
+      title = txt(watchLink);
+      if (!title && watchLink.getAttribute("title")) {
+        title = String(watchLink.getAttribute("title")).trim();
+      }
+      var href = watchLink.href || watchLink.getAttribute("href") || "";
+      var m = String(href).match(/[?&]v=([^&]+)/);
+      if (m) videoId = m[1];
+    }
+    if (!title) {
+      var tfs = dq(root, ".title yt-formatted-string") || dq(root, "yt-formatted-string.title");
+      if (tfs) title = txt(tfs);
+    }
+    if (!title) {
+      var headline = dq(root, "yt-formatted-string.headline");
+      if (headline) title = txt(headline);
+    }
+    var sub =
+      dq(root, ".subtitle yt-formatted-string") ||
+      dq(root, "yt-formatted-string.subtitle") ||
+      dq(root, ".byline yt-formatted-string");
+    if (sub) channel = txt(sub);
+    if (!title) {
+      title = getTitleFromRow(bar);
+    }
+    if (!channel) {
+      channel = getChannelFromRow(bar);
+    }
+    if (!title) {
+      var dt = (document.title || "").trim();
+      dt = dt.replace(/\s*-\s*YouTube Music\s*$/i, "").replace(/\s*\|\s*YouTube Music.*$/i, "").trim();
+      if (dt && dt.length > 0 && dt.length < 400) {
+        title = dt;
       }
     }
+    if (!videoId) {
+      try {
+        var u = new URL(location.href);
+        var vParam = u.searchParams.get("v");
+        if (vParam) videoId = vParam;
+      } catch (e) {}
+    }
+    if (!title) {
+      var pq = document.querySelector("ytmusic-player-queue");
+      if (pq) {
+        var items = dqAll(pq, "ytmusic-queue-item-renderer, ytmusic-player-queue-item");
+        var k;
+        for (k = 0; k < items.length; k++) {
+          var el = items[k];
+          var sel =
+            (el.classList && el.classList.contains("selected")) ||
+            (el.getAttribute && el.getAttribute("selected") !== null) ||
+            (el.getAttribute && el.getAttribute("play-state") === "PLAYING");
+          if (sel) {
+            title = getTitleFromRow(el);
+            if (!channel) channel = getChannelFromRow(el);
+            break;
+          }
+        }
+      }
+    }
+    return { title: title, channel: channel, videoId: videoId };
+  }
+
+  /**
+   * True only for the real transport "next track" control (not "Up next", ads, chapters, etc.).
+   */
+  function isNextTrackLabel(combined) {
+    var lower = combined.toLowerCase().trim();
+    if (!lower) return false;
+    if (lower.indexOf("previous") !== -1 || /\bprev\b/.test(lower)) return false;
+    if (lower.indexOf("up next") !== -1) return false;
+    if (lower.indexOf("next chapter") !== -1) return false;
+    if (lower.indexOf("next episode") !== -1 || lower.indexOf("next video") !== -1) return false;
+    if (lower === "next" || lower === "next track") return true;
+    if (lower.indexOf("next track") !== -1) return true;
+    if (lower.indexOf("skip forward") !== -1) return true;
+    if (/\bnext\b/.test(lower)) return true;
+    return false;
+  }
+
+  function tryInternalPlayerSkip() {
     try {
-      document.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "n",
-          code: "KeyN",
-          shiftKey: true,
-          bubbles: true,
-          cancelable: true,
-        })
-      );
-    } catch (e2) {}
+      var app = document.querySelector("ytmusic-app");
+      if (!app) return false;
+      var objs = [app.player, app.player_, app._player, app.api];
+      var oi;
+      for (oi = 0; oi < objs.length; oi++) {
+        var pl = objs[oi];
+        if (!pl || typeof pl !== "object") continue;
+        var names = ["nextVideo", "seekToNext", "skipToNext", "playNext", "next"];
+        var ni;
+        for (ni = 0; ni < names.length; ni++) {
+          if (typeof pl[names[ni]] === "function") {
+            pl[names[ni]]();
+            return true;
+          }
+        }
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function tryClickNextByKnownSelectors(bar) {
+    function safeNextClick(el) {
+      if (!el || !el.click) return false;
+      var al = ((el.getAttribute && el.getAttribute("aria-label")) || "").toLowerCase();
+      if (al.indexOf("up next") !== -1) return false;
+      try {
+        el.click();
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
+    var sels = [
+      "[class*=\"next-button\"]",
+      "[class*=\"nextButton\"]",
+      "tp-yt-paper-icon-button[aria-label*=\"Next\"]",
+      "button[aria-label*=\"Next\"]",
+    ];
+    var si;
+    for (si = 0; si < sels.length; si++) {
+      try {
+        var el = dq(bar, sels[si]) || bar.querySelector(sels[si]);
+        if (safeNextClick(el)) return true;
+      } catch (e2) {}
+    }
+    return false;
+  }
+
+  function tryKeyboardSkip() {
+    var opts = { bubbles: true, cancelable: true };
+    var keys = [
+      { key: "MediaTrackNext", code: "MediaTrackNext" },
+      { key: "n", code: "KeyN", shiftKey: true },
+    ];
+    var targets = [document.body, document.documentElement];
+    var ti;
+    var ki;
+    for (ti = 0; ti < targets.length; ti++) {
+      for (ki = 0; ki < keys.length; ki++) {
+        try {
+          var down = new KeyboardEvent("keydown", Object.assign({}, keys[ki], opts));
+          var up = new KeyboardEvent("keyup", Object.assign({}, keys[ki], opts));
+          targets[ti].dispatchEvent(down);
+          targets[ti].dispatchEvent(up);
+        } catch (e3) {}
+      }
+    }
+  }
+
+  function performSkip() {
+    if (tryInternalPlayerSkip()) return;
+
+    var bar = document.querySelector("ytmusic-player-bar");
+    if (!bar) {
+      tryKeyboardSkip();
+      return;
+    }
+
+    if (tryClickNextByKnownSelectors(bar)) return;
+
+    function clickEl(el) {
+      if (!el) return false;
+      try {
+        el.click();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function labelOf(el) {
+      return (
+        ((el.getAttribute && el.getAttribute("aria-label")) || "") +
+        " " +
+        ((el.getAttribute && el.getAttribute("title")) || "")
+      )
+        .trim()
+        .toLowerCase();
+    }
+
+    function isPlayPauseButton(el) {
+      var al = labelOf(el);
+      if (!al) return false;
+      if (al.indexOf("previous") !== -1 || /\bprev\b/.test(al)) return false;
+      return al.indexOf("play") !== -1 || al.indexOf("pause") !== -1;
+    }
+
+    var right =
+      dq(bar, "#right-controls") ||
+      dq(bar, ".right-controls") ||
+      dq(bar, "[class*=\"right-controls\"]");
+    var root = right || bar;
+    var buttons = C.querySelectorAllDeep(root, "tp-yt-paper-icon-button, paper-icon-button");
+
+    var i;
+    var playIdx = -1;
+    for (i = 0; i < buttons.length; i++) {
+      if (isPlayPauseButton(buttons[i])) {
+        playIdx = i;
+        break;
+      }
+    }
+    if (playIdx >= 0) {
+      var j;
+      for (j = 1; j <= 4 && playIdx + j < buttons.length; j++) {
+        var cand = buttons[playIdx + j];
+        var alC = labelOf(cand);
+        if (alC.indexOf("previous") !== -1 || /\bprev\b/.test(alC)) continue;
+        if (isPlayPauseButton(cand)) continue;
+        if (alC.indexOf("shuffle") !== -1) continue;
+        if (alC.indexOf("repeat") !== -1 || alC.indexOf("loop") !== -1) continue;
+        if (
+          alC.indexOf("cast") !== -1 ||
+          alC.indexOf("queue") !== -1 ||
+          alC.indexOf("volume") !== -1 ||
+          alC.indexOf("lyrics") !== -1
+        ) {
+          continue;
+        }
+        if (isNextTrackLabel(alC) || /\bnext\b/.test(alC)) {
+          if (clickEl(cand)) return;
+          break;
+        }
+        if (j === 1 && !alC) {
+          if (clickEl(cand)) return;
+          break;
+        }
+      }
+    }
+
+    for (i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
+      var combined = labelOf(b);
+      if (!combined) continue;
+      if (!isNextTrackLabel(combined)) continue;
+      if (clickEl(b)) return;
+    }
+
+    var exactOnly =
+      dq(bar, 'tp-yt-paper-icon-button[aria-label="Next"]') ||
+      dq(bar, 'tp-yt-paper-icon-button[aria-label="Next track"]') ||
+      dq(bar, "paper-icon-button[aria-label=\"Next\"]") ||
+      dq(bar, "paper-icon-button[aria-label=\"Next track\"]");
+    if (exactOnly) {
+      clickEl(exactOnly);
+      return;
+    }
+
+    tryKeyboardSkip();
   }
 
   /**
@@ -285,10 +570,14 @@
    */
   function maybeSkipCurrentTrack(settings) {
     if (!settings.enabled || settings.mode === "test") return;
-    var bar = document.querySelector("ytmusic-player-bar");
-    if (!bar) return;
-    var title = getTitleFromRow(bar);
-    var channel = getChannelFromRow(bar);
+    var np;
+    try {
+      np = getNowPlayingFromPlayerBar();
+    } catch (e) {
+      return;
+    }
+    var title = np.title;
+    var channel = np.channel;
     if (!title && !channel) return;
     if (!F.shouldBlock(title, channel, settings)) {
       skipBurstTs.length = 0;
@@ -302,7 +591,17 @@
     if (skipBurstTs.length >= MAX_SKIPS_PER_10S) return;
     skipBurstTs.push(now);
     lastSkipClickAt = now;
-    performSkip();
+    try {
+      performSkip();
+    } catch (e2) {}
+  }
+
+  function pollSkipPlayback() {
+    try {
+      if (!lastSettings || !lastSettings.enabled || lastSettings.mode === "test") return;
+      if (lastSettings.skipBlockedOnPlayback === false) return;
+      maybeSkipCurrentTrack(lastSettings);
+    } catch (e) {}
   }
 
   function process(settings) {
@@ -323,11 +622,15 @@
         C.clearBootingIfFirst();
       }
 
+      clearFilterClassesFromPlaybackChrome();
+
       var rows = collectRows();
       var blockedCount = 0;
       var j;
       for (j = 0; j < rows.length; j++) {
         var row = rows[j];
+        if (isInsidePlaybackSurface(row)) continue;
+        if (rowContainsVideoElement(row)) continue;
         var title = getTitleFromRow(row);
         var channel = getChannelFromRow(row);
         if (!title && !channel) continue;
@@ -351,11 +654,11 @@
   var debouncedProcess = C.debounce(function () {
     if (lastSettings) process(lastSettings);
     else run();
-  }, 80);
+  }, 400);
 
   function init() {
-    C.injectStyles();
-    C.bootPhaseStart();
+    C.injectStyles({ skipBoot: true });
+    injectPlaybackSafetyStyles();
     run();
     chrome.storage.onChanged.addListener(function (changes, area) {
       if (area !== "local" || !changes[C.STORAGE_KEY]) return;
@@ -370,6 +673,7 @@
     });
     var obs = new MutationObserver(debouncedProcess);
     obs.observe(document.documentElement, { childList: true, subtree: true });
+    setInterval(pollSkipPlayback, 500);
   }
 
   if (document.readyState === "loading") {

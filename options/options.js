@@ -12,6 +12,7 @@
       matchChannel: true,
       mode: "hide",
       showFloatingCounter: true,
+      skipBlockedOnPlayback: true,
     };
   }
 
@@ -25,6 +26,7 @@
       matchChannel: document.getElementById("matchChannel"),
       showFloatingCounter: document.getElementById("showFloatingCounter"),
       mode: document.getElementById("mode"),
+      skipBlockedOnPlayback: document.getElementById("skipBlockedOnPlayback"),
       blockPatterns: document.getElementById("blockPatterns"),
       allowPatterns: document.getElementById("allowPatterns"),
       save: document.getElementById("save"),
@@ -55,6 +57,7 @@
       ui.enabled.checked = !!o.enabled;
       ui.matchChannel.checked = o.matchChannel !== false;
       ui.showFloatingCounter.checked = o.showFloatingCounter !== false;
+      ui.skipBlockedOnPlayback.checked = o.skipBlockedOnPlayback !== false;
       ui.mode.value = o.mode === "test" || o.mode === "dim" ? "test" : "hide";
       if (raw && Object.prototype.hasOwnProperty.call(raw, "blockPatterns")) {
         ui.blockPatterns.value = o.blockPatterns;
@@ -72,6 +75,7 @@
       matchChannel: ui.matchChannel.checked,
       showFloatingCounter: ui.showFloatingCounter.checked,
       mode: ui.mode.value === "test" ? "test" : "hide",
+      skipBlockedOnPlayback: ui.skipBlockedOnPlayback.checked,
       blockPatterns: ui.blockPatterns.value,
       allowPatterns: ui.allowPatterns.value,
     };
@@ -113,6 +117,7 @@
         ui.enabled.checked = !!o.enabled;
         ui.matchChannel.checked = o.matchChannel !== false;
         ui.showFloatingCounter.checked = o.showFloatingCounter !== false;
+        ui.skipBlockedOnPlayback.checked = o.skipBlockedOnPlayback !== false;
         ui.mode.value = o.mode === "test" || o.mode === "dim" ? "test" : "hide";
         ui.blockPatterns.value =
           typeof o.blockPatterns === "string" ? o.blockPatterns : defaultBlockText();

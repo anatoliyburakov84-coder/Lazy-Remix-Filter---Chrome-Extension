@@ -32,9 +32,34 @@
             <option value="test">Test — highlight rows that would be blocked</option>
           </select>
         </div>
+        <label class="row">
+          <input type="checkbox" id="skipBlockedOnPlayback" />
+          <span>YouTube Music: skip to the next track when the current song matches your block list</span>
+        </label>
         <p class="field-hint">
-          On YouTube Music, <strong>Hide</strong> also skips to the next track when the current song matches your
-          patterns (so radios and automatic playlists do not keep playing hidden items).
+          On by default: radios and autoplay queues advance past blocked titles. Turn it off if you see playback
+          glitches.
+        </p>
+        <p class="field-hint">
+          <strong>net::ERR_BLOCKED_BY_CLIENT</strong> means a <em>different</em> extension (ad blocker, privacy
+          tool, etc.) blocked the request. Lazy Remix Filter does not touch network traffic. Also, Chrome’s rules do
+          not let one extension override another extension’s <strong>block</strong> rules, so this extension cannot
+          “unblock” those URLs for you.
+        </p>
+        <p class="field-hint">
+          You need to relax blocking for YouTube Music in that tool. Typical fixes:
+          <strong>uBlock Origin</strong> — open the extension popup on a Music tab and click the large power button
+          until it is gray (blocking off for this site).
+          <strong>Brave</strong> — lion icon → Shields down for music.youtube.com.
+          If errors still mention <code>play.google.com</code> or other Google hosts, add exceptions for those in
+          your blocker (they are often third-party from the Music tab).
+        </p>
+        <p class="field-hint">
+          <strong>Black screen with Brave:</strong> turning Shields off may not be enough. Try
+          <code>brave://settings/shields</code> and relax cross-site cookie blocking for a test, disable other
+          extensions on that tab, or try a clean Chrome profile with only this extension.
+          <code>requestStorageAccessFor: Permission denied</code> comes from the browser’s storage privacy rules,
+          not from Lazy Remix Filter.
         </p>
 
         <label class="row">
@@ -106,6 +131,9 @@
             missed until selectors are updated.
           </li>
           <li>Detection is keyword-based; some remix titles slip through, and rare false positives can occur.</li>
+          <li>
+            For <code>net::ERR_BLOCKED_BY_CLIENT</code> on YouTube Music, see the note under Filtering (ad blockers).
+          </li>
           <li>YouTube may change its page structure; if filtering stops after an update, the extension may need fixes.</li>
           <li>Filtering applies to visible lists and grids, not to audio already playing in the background only.</li>
           <li>
