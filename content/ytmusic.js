@@ -235,12 +235,83 @@
 
   var lastSettings = null;
 
+  /** Timestamps of recent skip clicks (rolling window) to avoid runaway skip loops. */
+  var skipBurstTs = [];
+  var lastSkipClickAt = 0;
+  var MAX_SKIPS_PER_10S = 25;
+  var MIN_MS_BETWEEN_SKIPS = 250;
+
+  function performSkip() {
+    var bar = document.querySelector("ytmusic-player-bar");
+    if (!bar) return;
+    var buttons = C.querySelectorAllDeep(bar, "tp-yt-paper-icon-button, paper-icon-button, button");
+    var i;
+    for (i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
+      var al = (b.getAttribute && b.getAttribute("aria-label")) || "";
+      var tl = (b.getAttribute && b.getAttribute("title")) || "";
+      var combined = (al + " " + tl).trim();
+      if (!combined) continue;
+      var lower = combined.toLowerCase();
+      if (lower.indexOf("previous") !== -1 || /\bprev\b/.test(lower)) continue;
+      if (lower.indexOf("skip ad") !== -1) continue;
+      if (
+        lower.indexOf("next") !== -1 ||
+        lower.indexOf("forward") !== -1 ||
+        lower.indexOf("skip") !== -1
+      ) {
+        try {
+          b.click();
+        } catch (e) {}
+        return;
+      }
+    }
+    try {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "n",
+          code: "KeyN",
+          shiftKey: true,
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+    } catch (e2) {}
+  }
+
+  /**
+   * When the currently playing track matches block rules, advance playback (radio / playlists still
+   * contain those entries server-side; skipping is what removes them from actual playback).
+   */
+  function maybeSkipCurrentTrack(settings) {
+    if (!settings.enabled || settings.mode === "test") return;
+    var bar = document.querySelector("ytmusic-player-bar");
+    if (!bar) return;
+    var title = getTitleFromRow(bar);
+    var channel = getChannelFromRow(bar);
+    if (!title && !channel) return;
+    if (!F.shouldBlock(title, channel, settings)) {
+      skipBurstTs.length = 0;
+      return;
+    }
+    var now = Date.now();
+    if (now - lastSkipClickAt < MIN_MS_BETWEEN_SKIPS) return;
+    skipBurstTs = skipBurstTs.filter(function (t) {
+      return now - t < 10000;
+    });
+    if (skipBurstTs.length >= MAX_SKIPS_PER_10S) return;
+    skipBurstTs.push(now);
+    lastSkipClickAt = now;
+    performSkip();
+  }
+
   function process(settings) {
     try {
       lastSettings = settings;
       var showFloat = settings.showFloatingCounter !== false;
 
       if (!settings.enabled) {
+        skipBurstTs.length = 0;
         document.querySelectorAll(".lazy-remix-filter-hidden, .lazy-remix-filter-test, .lazy-remix-filter-dim").forEach(function (el) {
           el.classList.remove("lazy-remix-filter-hidden", "lazy-remix-filter-test", "lazy-remix-filter-dim");
         });
@@ -264,6 +335,8 @@
         C.applyToRow(row, blocked, settings.mode);
         if (blocked) blockedCount += 1;
       }
+
+      maybeSkipCurrentTrack(settings);
 
       C.reportBlockedCount(blockedCount, showFloat, settings.mode);
     } finally {
